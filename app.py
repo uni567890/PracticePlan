@@ -250,7 +250,7 @@ def submit_plan():
     # 選択した練習日から2か月後までの日程をフィルタリング
     from datetime import datetime, timedelta
     selected_date = datetime.strptime(date, "%Y-%m-%d").date()
-    two_months_later = selected_date + timedelta(days(60))
+    two_months_later = selected_date + timedelta(days=60)
     filtered_dates = [d for d in all_dates if datetime.strptime(d.date, "%Y-%m-%d").date() >= selected_date and datetime.strptime(d.date, "%Y-%m-%d").date() <= two_months_later]
     dates_info = "\n".join([f"- {d.date}" for d in filtered_dates])
 
@@ -258,42 +258,52 @@ def submit_plan():
     date_entry = DateEntry.query.filter_by(date=date).first()
     member_info = ""
     if date_entry:
-        for member in date_entry.members:
+        for member_association in date_entry.member_associations:
+            member = member_association.member
             member_info += f"- {member.name} ({member.part}, {member.skill_level})\n"
 
     prompt = f"""
-    あなたは合唱練習計画アプリのアシスタントです。
-    以下の詳細に基づいて、練習計画を提案してください：
-    - 練習日: {date}
-    - 最大練習時間: {date_entry.max_practice_time} 分
+あなたは合唱練習計画アプリのアシスタントです。
+以下の詳細に基づいて、練習計画を提案してください：
 
-    本番の日程と演奏曲目:
-    {performance_info}
+**練習日に関する情報:**
+- 練習日: {date}
+- 最大練習時間: {date_entry.max_practice_time} 分
 
-    登録されているすべての曲 (部分ごとの完成度と重要度を含む):
-    {songs_info}
+**本番に関する情報:**
+{performance_info}
 
-    過去のフィードバック:
-    {feedback_info}
+**曲に関する情報:**
+{songs_info}
 
-    過去のAI提案:
-    {suggestions_info}
+**過去のフィードバック:**
+{feedback_info}
 
-    選択した練習日から2か月後までの練習日程:
-    {dates_info}
+**過去のAI提案:**
+{suggestions_info}
 
-    注力パート: {focused_part or "なし"}
-    注力セクション: {focused_section or "なし"}
+**今後の練習日程:**
+{dates_info}
 
-    参加メンバー:
-    {member_info or "なし"}
+**練習テンプレート:**
+- 注力パート: {focused_part or "なし"}
+- 注力セクション: {focused_section or "なし"}
 
-    ユーザーからの追加のプロンプト:
-    {additional_prompt}
+**参加メンバー:**
+{member_info or "なし"}
 
-    これらの情報を総合的に判断し、**注力パートと注力セクション**、曲の部分ごとの完成度、重要度、**参加メンバーのパートとスキルレベル**、練習時間を考慮した詳細な練習計画を提案してください。
-    また、当日のタイムスケジュールは、改行してリスト形式で出力してください。
-    """
+**ユーザーからの追加指示:**
+{additional_prompt}
+
+**指示:**
+- 上記の情報を総合的に判断し、以下の要素を考慮して詳細な練習計画を提案してください。
+    - 注力パートと注力セクション
+    - 曲の部分ごとの完成度と重要度
+    - 参加メンバーのパート（ソプラノ、アルト、テノール、バス）、パート詳細（上、下、未設定）、スキルレベル（初心者、中級者、上級者、未設定）
+    - 練習時間
+
+- 練習計画は、当日のタイムスケジュールとして、改行してリスト形式で出力してください。
+"""
 
     # AI提案を生成
     ai_suggestion = generate_ai_suggestion(prompt)
@@ -353,7 +363,7 @@ def revise_plan():
     # 選択した練習日から2か月後までの日程をフィルタリング
     from datetime import datetime, timedelta
     selected_date = datetime.strptime(date, "%Y-%m-%d").date()
-    two_months_later = selected_date + timedelta(days(60))
+    two_months_later = selected_date + timedelta(days=60)
     filtered_dates = [d for d in all_dates if datetime.strptime(d.date, "%Y-%m-%d").date() >= selected_date and datetime.strptime(d.date, "%Y-%m-%d").date() <= two_months_later]
     dates_info = "\n".join([f"- {d.date}" for d in filtered_dates])
 
