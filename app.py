@@ -6,6 +6,7 @@ from google import genai
 import json
 from datetime import date
 import sqlalchemy
+import psycopg2
 
 app = Flask(__name__)
 
