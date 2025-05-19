@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>練習日一覧</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>登録済みの練習日</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>最大練習時間 (分)</th>
+            <th>参加メンバー</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for date in dates %}
+          <tr>
+            <td>{{ date.date }}</td>
+            <td>{{ date.max_practice_time }}</td>
+            <td>
+              {% for member in date.members %} {{ member.name }} ({{ member.part
+              }}, {{ member.skill_level }})<br />
+              {% endfor %}
+            </td>
+            <td>
+              <a href="/edit_date/{{ date.id }}" class="btn btn-sm btn-primary"
+                >編集</a
+              >
+              <form
+                action="/delete_date/{{ date.id }}"
+                method="POST"
+                style="display: inline"
+              >
+                <button
+                  type="submit"
+                  class="btn btn-sm btn-danger"
+                  onclick="return confirm('本当に削除しますか？')"
+                >
+                  削除
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <a href="/add_date" class="btn btn-primary">練習日を追加する</a>
+    </div>
+  </body>
+</html>

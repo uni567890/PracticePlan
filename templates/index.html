@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>練習計画作成</title>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.17/index.global.min.js"></script>
+    <style>
+      #calendar {
+        max-width: 600px; /* カレンダーの幅を指定 */
+        height: 500px; /* カレンダーの高さを指定 */
+        margin: 20px auto; /* 中央揃え */
+      }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var calendarEl = document.getElementById("calendar");
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: "dayGridMonth",
+          events: {{ calendar_events_data | safe }}, // JSON.parseを削除
+          selectable: true,
+          select: function (info) {
+            var selectedDate = info.startStr;
+            // 練習日選択セレクトボックスに選択された日付を設定
+            document.getElementById("date").value = selectedDate;
+          },
+        });
+        calendar.render();
+      });
+    </script>
+  </head>
+  <body>
+    <h1>練習計画を作成</h1>
+    <a href="/add_song">曲情報を追加する</a><br /><br />
+    <a href="/add_date">練習日を登録する</a><br /><br />
+    <a href="/add_performance">本番日程を登録する</a><br /><br />
+    <a href="/view_ai_suggestions">AI提案を閲覧する</a><br /><br />
+    <a href="/dates">練習日一覧を見る</a><br /><br />
+    <a href="/add_member">メンバーを追加する</a><br /><br />
+
+    <h2>練習計画テンプレート</h2>
+    <ul>
+      {% for template in templates %}
+      <li>
+        {{ template.name }} - {{ template.description }}
+        <a href="/edit_template/{{ template.id }}">編集</a>
+      </li>
+      {% endfor %}
+    </ul>
+    <a href="/add_template" class="btn btn-primary"
+      >練習計画テンプレートの追加</a
+    >
+
+    <!-- カレンダー表示 -->
+    <div id="calendar"></div>
+
+    <form action="/submit_plan" method="POST">
+      <label for="date">練習日:</label>
+      <select id="date" name="date" required>
+        <option value="" disabled selected>練習日を選択してください</option>
+        {% for date in dates %}
+        <option value="{{ date.date }}">{{ date.date }}</option>
+        {% endfor %}</select
+      ><br /><br />
+
+      <label for="additional_prompt">追加のプロンプト:</label><br />
+      <textarea
+        id="additional_prompt"
+        name="additional_prompt"
+        rows="5"
+        cols="50"
+        placeholder="AIに伝えたい追加の情報を入力してください"
+      ></textarea
+      ><br /><br />
+
+      <button type="submit">AIに練習計画を作成させる</button>
+      <!-- 練習日編集ページへのリンクを追加 -->
+      {% if dates %}
+        <a href="/edit_date/{{ dates[0].id }}">練習日を編集する</a>
+      {% endif %}
+    </form>
+
+    <a href="/members">メンバー一覧を見る</a><br /><br />
+    <a href="/add_member">メンバーを追加する</a><br /><br />
+  </body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>練習計画テンプレートの編集</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>練習計画テンプレートの編集</h1>
+      <form action="/update_template/{{ template.id }}" method="POST">
+        <div class="form-group">
+          <label for="name">テンプレート名:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            name="name"
+            value="{{ template.name }}"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="description">説明:</label>
+          <textarea
+            class="form-control"
+            id="description"
+            name="description"
+            rows="3"
+          >
+{{ template.description }}</textarea
+          >
+        </div>
+        <div class="form-group">
+          <label for="template_data">練習内容 (JSON形式):</label>
+          <textarea
+            class="form-control"
+            id="template_data"
+            name="template_data"
+            rows="5"
+            required
+          >
+{{ template.template_data }}</textarea
+          >
+        </div>
+        <div class="form-group">
+          <label for="focused_part">注力パート:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="focused_part"
+            name="focused_part"
+            value="{{ template.focused_part }}"
+          />
+        </div>
+        <div class="form-group">
+          <label for="focused_section">注力セクション:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="focused_section"
+            name="focused_section"
+            value="{{ template.focused_section }}"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">更新</button>
+      </form>
+      <a href="/" class="btn btn-secondary">キャンセル</a>
+    </div>
+  </body>
+</html>

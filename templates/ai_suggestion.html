@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI提案</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>AI提案</h1>
+      <p><strong>日付:</strong> {{ date }}</p>
+      <div>{{ suggestion | safe }}</div>
+
+      <h2>修正指示</h2>
+      <form action="/revise_plan" method="POST">
+        <input type="hidden" name="date" value="{{ date }}" />
+        <input
+          type="hidden"
+          name="current_suggestion"
+          value="{{ suggestion | escape }}"
+        />
+        <div class="form-group">
+          <label for="revision_prompt">修正指示:</label>
+          <textarea
+            class="form-control"
+            id="revision_prompt"
+            name="revision_prompt"
+            rows="3"
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">修正を依頼</button>
+      </form>
+      <a href="/view_ai_suggestions" class="btn btn-secondary"
+        >提案一覧に戻る</a
+      >
+    </div>
+  </body>
+</html>

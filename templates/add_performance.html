@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>本番日程の登録</title>
+  </head>
+  <body>
+    <h1>本番日程を登録</h1>
+    <form action="/add_performance" method="POST">
+      <label for="date">本番日程:</label>
+      <input type="date" id="date" name="date" required /><br /><br />
+
+      <h2>演奏する曲を選択してください</h2>
+      {% for song in songs %}
+      <div>
+        <input
+          type="checkbox"
+          id="song_{{ song.id }}"
+          name="song_ids[]"
+          value="{{ song.id }}"
+        />
+        <label for="song_{{ song.id }}">{{ song.name }}</label>
+      </div>
+      {% endfor %}
+
+      <button type="submit">登録</button>
+    </form>
+
+    {% if message %}
+    <p>{{ message }}</p>
+    {% endif %}
+
+    <h2>登録済みの本番日程</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>本番日程</th>
+          <th>演奏する曲目</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for performance in performances %}
+        <tr>
+          <td>{{ performance.date }}</td>
+          <td>
+            <ul>
+              {% for song in performance.songs %}
+              <li>{{ song.song_name }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+          <td>
+            <a href="/edit_performance/{{ performance.id }}">編集</a>
+            <form action="/delete_performance/{{ performance.id }}" method="POST" style="display:inline;">
+              <button type="submit" onclick="return confirm('本当に削除しますか？')">削除</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <a href="/">トップページに戻る</a>
+  </body>
+</html>

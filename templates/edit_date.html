@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>練習日を編集</title>
+  </head>
+  <body>
+    <h1>練習日を編集</h1>
+    <form action="/edit_date/{{ date_entry.id }}" method="POST">
+      <label for="date">日付:</label>
+      <input
+        type="date"
+        id="date"
+        name="date"
+        value="{{ date_entry.date }}"
+        required
+      /><br /><br />
+
+      <div class="form-group">
+        <label for="max_practice_time">最大練習時間（分）:</label>
+        <input
+          type="number"
+          class="form-control"
+          id="max_practice_time"
+          name="max_practice_time"
+          value="{{ date_entry.max_practice_time }}"
+          required
+        />
+      </div>
+      <div class="form-group">
+        <label>参加メンバー:</label>
+        {% for member in members %}
+        <div class="form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            id="member_{{ member.id }}"
+            name="member_ids[]"
+            value="{{ member.id }}"
+            {% if date_entry.member_associations %}
+            {% for association in date_entry.member_associations %}
+            {% if association.member_id == member.id %}checked{% endif %}
+            {% endfor %}
+            {% endif %}
+          />
+          <label class="form-check-label" for="member_{{ member.id }}"
+            >{{ member.name }} ({{ member.part }}, {{ member.skill_level }})</label
+          >
+          <select class="form-control" name="attendance_{{ member.id }}">
+            <option
+              value="Present"
+              {% if date_entry.member_associations %}
+              {% for association in date_entry.member_associations %}
+              {% if association.member_id == member.id and association.attendance == 'Present' %}selected{% endif %}
+              {% endfor %}
+              {% endif %}
+            >
+              出席
+            </option>
+            <option
+              value="Absent"
+              {% if date_entry.member_associations %}
+              {% for association in date_entry.member_associations %}
+              {% if association.member_id == member.id and association.attendance == 'Absent' %}selected{% endif %}
+              {% endfor %}
+              {% endif %}
+            >
+              欠席
+            </option>
+            <option
+              value="Late"
+              {% if date_entry.member_associations %}
+              {% for association in date_entry.member_associations %}
+              {% if association.member_id == member.id and association.attendance == 'Late' %}selected{% endif %}
+              {% endfor %}
+              {% endif %}
+            >
+              遅刻
+            </option>
+          </select>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-primary">更新</button>
+    </form>
+    <a href="/">トップページへ戻る</a>
+    <a href="/dates">練習日一覧へ戻る</a>
+  </body>
+</html>

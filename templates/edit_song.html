@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>曲情報の編集</title>
+  </head>
+  <body>
+    <h1>曲情報の編集</h1>
+
+    <form action="/edit_song/{{ song.id }}" method="POST">
+      <label for="song_name">曲名:</label>
+      <input
+        type="text"
+        id="song_name"
+        name="song_name"
+        value="{{ song.name }}"
+        required
+      /><br /><br />
+
+      <label for="completion_level">曲全体の完成度:</label>
+      <input
+        type="text"
+        id="completion_level"
+        name="completion_level"
+        value="{{ song.completion_level }}"
+      /><br /><br />
+
+      <label for="notes">備考:</label>
+      <textarea id="notes" name="notes" class="form-control">
+{{ song.notes }}</textarea
+      ><br /><br />
+
+      <div class="form-group">
+        <label for="difficulty">難易度:</label>
+        <select class="form-control" id="difficulty" name="difficulty">
+            <option value="easy" {% if song.difficulty == 'easy' %}selected{% endif %}>簡単</option>
+            <option value="normal" {% if song.difficulty == 'normal' %}selected{% endif %}>普通</option>
+            <option value="difficult" {% if song.difficulty == 'difficult' %}selected{% endif %}>難しい</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="practice_frequency">練習頻度:</label>
+        <select class="form-control" id="practice_frequency" name="practice_frequency">
+            <option value="daily" {% if song.practice_frequency == 'daily' %}selected{% endif %}>毎日</option>
+            <option value="weekly" {% if song.practice_frequency == 'weekly' %}selected{% endif %}>毎週</option>
+            <option value="biweekly" {% if song.practice_frequency == 'biweekly' %}selected{% endif %}>隔週</option>
+            <option value="monthly" {% if song.practice_frequency == 'monthly' %}selected{% endif %}>毎月</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="last_practiced">最終練習日:</label>
+        <input type="date" class="form-control" id="last_practiced" name="last_practiced" value="{{ song.last_practiced }}">
+      </div>
+
+      <h3>曲の部分と完成度を編集</h3>
+      <div id="song-parts">
+        {% for part in song.parts %}
+        <div>
+          <label for="part_name_{{ loop.index }}">部分名:</label>
+          <input
+            type="text"
+            id="part_name_{{ loop.index }}"
+            name="part_names[]"
+            value="{{ part.part_name }}"
+            required
+          />
+          <label for="completion_level_{{ loop.index }}">完成度:</label>
+          <select class="form-control" name="part_completion_levels[]">
+            <option value="not_started" {% if part.completion_level == 'not_started' %}selected{% endif %}>未着手</option>
+            <option value="learning" {% if part.completion_level == 'learning' %}selected{% endif %}>練習中</option>
+            <option value="memorized" {% if part.completion_level == 'memorized' %}selected{% endif %}>暗譜</option>
+            <option value="performing" {% if part.completion_level == 'performing' %}selected{% endif %}>発表可能</option>
+          </select>
+          <label for="importance_{{ loop.index }}">重要度:</label>
+          <select class="form-control" name="part_importances[]">
+            <option value="high" {% if part.importance == 'high' %}selected{% endif %}>高い</option>
+            <option value="normal" {% if part.importance == 'normal' %}selected{% endif %}>普通</option>
+            <option value="low" {% if part.importance == 'low' %}selected{% endif %}>低い</option>
+          </select>
+          <input type="hidden" name="part_ids[]" value="{{ part.id }}" />
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" onclick="addPart()">部分を追加</button><br /><br />
+
+      <div class="form-check">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="is_div"
+          name="is_div"
+          {%
+          if
+          song.is_div
+          %}checked{%
+          endif
+          %}
+        />
+        <label class="form-check-label" for="is_div"
+          >Div (パートが上下に分かれる) 楽曲</label
+        >
+      </div>
+      <button type="submit" class="btn btn-primary">曲を更新</button>
+    </form>
+
+    <script>
+      function addPart() {
+        const partsDiv = document.getElementById("song-parts");
+        const partCount = partsDiv.children.length + 1;
+        const newPart = document.createElement("div");
+        newPart.innerHTML = `
+            <label for="part_name_${partCount}">部分名:</label>
+            <input type="text" id="part_name_${partCount}" name="part_names[]" required>
+            <label for="completion_level_${partCount}">完成度:</label>
+            <select class="form-control" name="part_completion_levels[]">
+                <option value="not_started">未着手</option>
+                <option value="learning">練習中</option>
+                <option value="memorized">暗譜</option>
+                <option value="performing">発表可能</option>
+            </select>
+            <label for="importance_${partCount}">重要度:</label>
+            <select class="form-control" name="part_importances[]">
+                <option value="high">高い</option>
+                <option value="normal">普通</option>
+                <option value="low">低い</option>
+            </select>
+            <input type="hidden" name="part_ids[]" value="new">
+        `;
+        partsDiv.appendChild(newPart);
+      }
+    </script>
+
+    <a href="/">トップページに戻る</a>
+  </body>
+</html>

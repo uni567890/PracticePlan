@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本番日程一覧</title>
+</head>
+<body>
+    <h1>登録済みの本番日程</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>日付</th>
+                <th>説明</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for performance in performances %}
+            <tr>
+                <td>{{ performance.date }}</td>
+                <td>{{ performance.description }}</td>
+                <td>
+                    <a href="/edit_performance/{{ performance.id }}">編集</a>
+                    <form action="/delete_performance/{{ performance.id }}" method="POST" style="display:inline;">
+                        <button type="submit" onclick="return confirm('本当に削除しますか？')">削除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/add_performance">本番日程を追加する</a>
+</body>
+</html>

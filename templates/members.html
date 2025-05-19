@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>メンバー一覧</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <style>
+      .part-members {
+        display: none; /* Initially hide the member lists */
+      }
+      .part-title {
+        cursor: pointer; /* Make the title look clickable */
+        padding: 5px;
+        border: 1px solid #ccc;
+        margin-bottom: 5px;
+      }
+      .part-title:hover {
+        background-color: #f0f0f0;
+      }
+    </style>
+    <script>
+      function togglePart(partId) {
+        var element = document.getElementById(partId);
+        if (element.style.display === "none") {
+          element.style.display = "block";
+        } else {
+          element.style.display = "none";
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>メンバー一覧</h1>
+
+      {% set parts = ['ソプラノ上', 'ソプラノ下', 'アルト上', 'アルト下',
+      'テノール上', 'テノール下', 'バス上', 'バス下'] %} {% for part in parts %}
+      <div>
+        <div
+          class="part-title"
+          onclick="togglePart('{{ part|replace(' ', '_') }}_members')"
+        >
+          {{ part }}
+        </div>
+        <div id="{{ part|replace(' ', '_') }}_members" class="part-members">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>名前</th>
+                <th>スキルレベル</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for member in members %} {% if member.part == part %}
+              <tr>
+                <td>{{ member.name }}</td>
+                <td>{{ member.skill_level }}</td>
+                <td>
+                  <a
+                    href="/edit_member/{{ member.id }}"
+                    class="btn btn-sm btn-primary"
+                    >編集</a
+                  >
+                  <form
+                    action="/delete_member/{{ member.id }}"
+                    method="POST"
+                    style="display: inline"
+                  >
+                    <button type="submit" class="btn btn-sm btn-danger">
+                      削除
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% endif %} {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endfor %}
+
+      <a href="/add_member" class="btn btn-primary">メンバーを追加する</a>
+      <a href="/" class="btn btn-secondary">戻る</a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>曲情報の管理</title>
+  </head>
+  <body>
+    <h1>曲情報の管理</h1>
+
+    <!-- 曲情報の追加フォーム -->
+    <form action="/add_song" method="POST">
+      <label for="song_name">曲名:</label>
+      <input type="text" id="song_name" name="song_name" required /><br /><br />
+
+      <label for="completion_level">曲全体の完成度:</label>
+      <input
+        type="text"
+        id="completion_level"
+        name="completion_level"
+      /><br /><br />
+
+      <label for="notes">備考:</label>
+      <textarea id="notes" name="notes" class="form-control"></textarea
+      ><br /><br />
+
+      <div class="form-group">
+        <label for="difficulty">難易度:</label>
+        <select class="form-control" id="difficulty" name="difficulty">
+          <option value="easy">簡単</option>
+          <option value="normal">普通</option>
+          <option value="difficult">難しい</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="practice_frequency">練習頻度:</label>
+        <select
+          class="form-control"
+          id="practice_frequency"
+          name="practice_frequency"
+        >
+          <option value="daily">毎日</option>
+          <option value="weekly">毎週</option>
+          <option value="biweekly">隔週</option>
+          <option value="monthly">毎月</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="last_practiced">最終練習日:</label>
+        <input
+          type="date"
+          class="form-control"
+          id="last_practiced"
+          name="last_practiced"
+        />
+      </div>
+
+      <h3>曲の部分と完成度を追加</h3>
+      <div id="song-parts">
+        <div>
+          <label for="part_name_1">部分名:</label>
+          <input type="text" id="part_name_1" name="part_names[]" required />
+          <label for="completion_level_1">完成度:</label>
+          <input
+            type="text"
+            id="completion_level_1"
+            name="part_completion_levels[]"
+          />
+        </div>
+      </div>
+      <button type="button" onclick="addPart()">部分を追加</button><br /><br />
+
+      <div class="form-check">
+        <input
+          type="checkbox"
+          class="form-check-input"
+          id="is_div"
+          name="is_div"
+        />
+        <label class="form-check-label" for="is_div"
+          >Div (パートが上下に分かれる) 楽曲</label
+        >
+      </div>
+      <button type="submit" class="btn btn-primary">曲を追加</button>
+    </form>
+
+    <script>
+      function addPart() {
+        const partsDiv = document.getElementById("song-parts");
+        const partCount = partsDiv.children.length + 1;
+        const newPart = document.createElement("div");
+        newPart.innerHTML = `
+            <label for="part_name_${partCount}">部分名:</label>
+            <input type="text" id="part_name_${partCount}" name="part_names[]" required>
+            <label for="completion_level_${partCount}">完成度:</label>
+            <input type="text" id="completion_level_${partCount}" name="part_completion_levels[]">
+        `;
+        partsDiv.appendChild(newPart);
+      }
+    </script>
+
+    {% if message %}
+    <p>{{ message }}</p>
+    {% endif %}
+
+    <h2>既存の曲情報</h2>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>曲名</th>
+          <th>完成度</th>
+          <th>考慮事項</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for song in songs %}
+        <tr>
+          <td>{{ song.name }}</td>
+          <td>{{ song.completion_level or '未設定' }}</td>
+          <td>{{ song.notes or 'なし' }}</td>
+          <td>
+            <form
+              action="/edit_song/{{ song.id }}"
+              method="GET"
+              style="display: inline"
+            >
+              <button type="submit">編集</button>
+            </form>
+            <form
+              action="/delete_song/{{ song.id }}"
+              method="POST"
+              style="display: inline"
+            >
+              <button
+                type="submit"
+                onclick="return confirm('本当に削除しますか？');"
+              >
+                削除
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <a href="/">トップページに戻る</a>
+  </body>
+</html>

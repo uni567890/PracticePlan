@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI提案一覧</title>
+  </head>
+  <body>
+    <h1>AI提案一覧</h1>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>提案内容</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for suggestion in suggestions %}
+        <tr>
+          <td>
+            <a href="/view_ai_suggestion/{{ suggestion.date }}"
+              >{{ suggestion.date }}</a
+            >
+          </td>
+          <td>{{ suggestion.suggestion[:50] | safe }}...</td>
+          <!-- 提案内容の一部を表示 -->
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <a href="/">トップページに戻る</a>
+  </body>
+</html>
