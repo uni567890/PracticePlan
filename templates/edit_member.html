@@ -1,41 +1,64 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>メンバーの編集</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
     <div class="container">
-        <h1>メンバーの編集</h1>
-        <form action="/update_member/{{ member.id }}" method="POST">
-            <div class="form-group">
-                <label for="name">名前:</label>
-                <input type="text" class="form-control" id="name" name="name" value="{{ member.name }}" required>
-            </div>
-            <div class="form-group">
-                <label for="part">パート:</label>
-                <select class="form-control" id="part" name="part">
-                    <option value="ソプラノ上" {% if member.part == 'ソプラノ上' %}selected{% endif %}>ソプラノ上</option>
-                    <option value="ソプラノ下" {% if member.part == 'ソプラノ下' %}selected{% endif %}>ソプラノ下</option>
-                    <option value="アルト上" {% if member.part == 'アルト上' %}selected{% endif %}>アルト上</option>
-                    <option value="アルト下" {% if member.part == 'アルト下' %}selected{% endif %}>アルト下</option>
-                    <option value="テノール上" {% if member.part == 'テノール上' %}selected{% endif %}>テノール上</option>
-                    <option value="テノール下" {% if member.part == 'テノール下' %}selected{% endif %}>テノール下</option>
-                    <option value="バス上" {% if member.part == 'バス上' %}selected{% endif %}>バス上</option>
-                    <option value="バス下" {% if member.part == 'バス下' %}selected{% endif %}>バス下</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="skill_level">スキルレベル:</label>
-                <select class="form-control" id="skill_level" name="skill_level">
-                    <option value="Beginner" {% if member.skill_level == 'Beginner' %}selected{% endif %}>初心者</option>
-                    <option value="Intermediate" {% if member.skill_level == 'Intermediate' %}selected{% endif %}>中級者</option>
-                    <option value="Advanced" {% if member.skill_level == 'Advanced' %}selected{% endif %}>上級者</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">更新</button>
-        </form>
-        <a href="/" class="btn btn-secondary">キャンセル</a>
+      <h1>メンバーの編集</h1>
+      <form action="/update_member/{{ member.id }}" method="POST">
+        <div class="form-group">
+          <label for="name">名前:</label>
+          <input
+            type="text"
+            class="form-control"
+            id="name"
+            name="name"
+            value="{{ member.name }}"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="part">パート:</label>
+          <select class="form-control" id="part" name="part">
+            <option value="S" {% if member.part == 'S' %}selected{% endif %}>
+              ソプラノ (S)
+            </option>
+            <option value="A" {% if member.part == 'A' %}selected{% endif %}>
+              アルト (A)
+            </option>
+            <option value="T" {% if member.part == 'T' %}selected{% endif %}>
+              テノール (T)
+            </option>
+            <option value="B" {% if member.part == 'B' %}selected{% endif %}>
+              バス (B)
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="part_detail">パート詳細:</label>
+          <select class="form-control" id="part_detail" name="part_detail">
+            <option value="未設定" {% if member.part_detail == '未設定' %}selected{% endif %}>未設定</option>
+            <option value="上" {% if member.part_detail == '上' %}selected{% endif %}>上</option>
+            <option value="下" {% if member.part_detail == '下' %}selected{% endif %}>下</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="skill_level">スキルレベル:</label>
+          <select class="form-control" id="skill_level" name="skill_level">
+            <option value="Beginner" {% if member.skill_level == 'Beginner' %}selected{% endif %}>初心者</option>
+            <option value="Intermediate" {% if member.skill_level == 'Intermediate' %}selected{% endif %}>中級者</option>
+            <option value="Advanced" {% if member.skill_level == 'Advanced' %}selected{% endif %}>上級者</option>
+            <option value="未設定" {% if member.skill_level == '未設定' %}selected{% endif %}>未設定</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">更新</button>
+      </form>
+      <a href="/" class="btn btn-secondary">キャンセル</a>
     </div>
-</body>
+  </body>
 </html>

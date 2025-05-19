@@ -35,11 +35,14 @@ class DateEntry(db.Model):
 
 class Member(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    part = db.Column(db.String(50), nullable=True)
-    skill_level = db.Column(db.String(50), nullable=True)
-    # date_entries = db.backref('date_entries', ...) # ← 古い定義を削除 (DateEntry側で定義)
-    date_associations = db.relationship("DateEntryMember", back_populates="member", cascade="all, delete-orphan")
+    name = db.Column(db.String(50), nullable=False)
+    part = db.Column(db.Enum('S', 'A', 'T', 'B', name='part_enum'), nullable=False)  # Enum型を使用
+    part_detail = db.Column(db.Enum('上', '下', '未設定', name='part_detail_enum'), nullable=True, default='未設定')  # 上下を追加
+    skill_level = db.Column(db.Enum('Beginner', 'Intermediate', 'Advanced', '未設定', name='skill_level_enum'), nullable=False, default='未設定')  # Enum型を使用
+    date_associations = db.relationship("DateEntryMember", back_populates="member")
+
+    def __repr__(self):
+        return f"Member(id={self.id}, name='{self.name}', part='{self.part}', part_detail='{self.part_detail}', skill_level='{self.skill_level}')"
 
 class PracticePlan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -727,9 +730,10 @@ def update_member(member_id):
     member = Member.query.get_or_404(member_id)
     member.name = request.form.get("name")
     member.part = request.form.get("part")
+    member.part_detail = request.form.get("part_detail")
     member.skill_level = request.form.get("skill_level")
     db.session.commit()
-    return redirect("/")  # リダイレクト先は適宜変更
+    return redirect("/members")  # メンバー一覧ページにリダイレクト
 
 @app.route("/delete_member/<int:member_id>", methods=["POST"])
 def delete_member(member_id):
@@ -739,8 +743,9 @@ def delete_member(member_id):
     return redirect("/members")  # メンバー一覧ページにリダイレクト
 
 @app.route("/members")
-def show_members():
+def members():
     members = Member.query.all()
+    print(members)  # ログに出力
     return render_template("members.html", members=members)
 
 @app.route("/get_date_info")
@@ -774,6 +779,41 @@ def generate_ai_suggestion(prompt):
 
     # レスポンスから提案を取得
     return html_output
+
+@app.route("/add_members_bulk", methods=["GET", "POST"])
+def add_members_bulk():
+    if request.method == "POST":
+        member_data = request.form.get("member_data")
+        if member_data:
+            try:
+                # メンバーデータを解析
+                members = []
+                for line in member_data.strip().split("\n"):
+                    parts = line.split("\t")  # タブ区切りを想定
+                    if len(parts) == 2:
+                        part, name = parts
+                        part = part.strip()
+                        name = name.strip()
+                        # パートのバリデーション
+                        if part in ['S', 'A', 'T', 'B']:
+                            members.append({"part": part, "name": name})
+
+                # メンバーを一括で登録
+                for member_info in members:
+                    new_member = Member(
+                        name=member_info["name"],
+                        part=member_info["part"],
+                        skill_level="未設定"  # デフォルト値
+                    )
+                    db.session.add(new_member)
+                db.session.commit()
+                return render_template("add_members_bulk.html", message="メンバーが一括で登録されました！")
+            except Exception as e:
+                db.session.rollback()
+                return render_template("add_members_bulk.html", error=f"エラーが発生しました: {str(e)}")
+        else:
+            return render_template("add_members_bulk.html", error="メンバーデータが入力されていません。")
+    return render_template("add_members_bulk.html")
 
 if __name__ == "__main__":
     app.run(debug=os.environ.get("DEBUG") == "True")

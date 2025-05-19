@@ -59,24 +59,19 @@
           />
         </div>
 
-        {% set parts = ['ソプラノ上', 'ソプラノ下', 'アルト上', 'アルト下',
-        'テノール上', 'テノール下', 'バス上', 'バス下'] %} {% for part in parts
-        %}
+        {% set parts = ['S', 'A', 'T', 'B'] %} {% for part in parts %}
         <div>
-          <div
-            class="part-title"
-            onclick="togglePart('{{ part|replace(' ', '_') }}_members')"
-          >
+          <div class="part-title" onclick="togglePart('{{ part }}_members')">
             {{ part }}
           </div>
-          <div id="{{ part|replace(' ', '_') }}_members" class="part-members">
+          <div id="{{ part }}_members" class="part-members">
             {% for member in members %} {% if member.part == part %}
             <div class="form-check">
               <input type="checkbox" class="form-check-input" id="member_{{
               member.id }}" name="member_ids[]" value="{{ member.id }}" checked
               /* 最初からチェック */ />
               <label class="form-check-label" for="member_{{ member.id }}"
-                >{{ member.name }} ({{ member.skill_level }})</label
+                >{{ member.name }} ({{ member.part_detail }})</label
               >
               <select
                 class="form-control"

@@ -8,7 +8,7 @@
     />
     <style>
       .part-members {
-        display: none; /* Initially hide the member lists */
+        /* display: none;  Initially hide the member lists */
       }
       .part-title {
         cursor: pointer; /* Make the title look clickable */
@@ -35,16 +35,12 @@
     <div class="container">
       <h1>メンバー一覧</h1>
 
-      {% set parts = ['ソプラノ上', 'ソプラノ下', 'アルト上', 'アルト下',
-      'テノール上', 'テノール下', 'バス上', 'バス下'] %} {% for part in parts %}
+      {% set parts = ['S', 'A', 'T', 'B'] %} {% for part in parts %}
       <div>
-        <div
-          class="part-title"
-          onclick="togglePart('{{ part|replace(' ', '_') }}_members')"
-        >
+        <div class="part-title" onclick="togglePart('{{ part }}_members')">
           {{ part }}
         </div>
-        <div id="{{ part|replace(' ', '_') }}_members" class="part-members">
+        <div id="{{ part }}_members" class="part-members">
           <table class="table">
             <thead>
               <tr>
@@ -56,7 +52,7 @@
             <tbody>
               {% for member in members %} {% if member.part == part %}
               <tr>
-                <td>{{ member.name }}</td>
+                <td>{{ member.name }} ({{ member.part_detail }})</td>
                 <td>{{ member.skill_level }}</td>
                 <td>
                   <a

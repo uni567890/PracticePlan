@@ -24,14 +24,18 @@
         <div class="form-group">
           <label for="part">パート:</label>
           <select class="form-control" id="part" name="part">
-            <option value="ソプラノ上">ソプラノ上</option>
-            <option value="ソプラノ下">ソプラノ下</option>
-            <option value="アルト上">アルト上</option>
-            <option value="アルト下">アルト下</option>
-            <option value="テノール上">テノール上</option>
-            <option value="テノール下">テノール下</option>
-            <option value="バス上">バス上</option>
-            <option value="バス下">バス下</option>
+            <option value="S">ソプラノ (S)</option>
+            <option value="A">アルト (A)</option>
+            <option value="T">テノール (T)</option>
+            <option value="B">バス (B)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="part_detail">パート詳細:</label>
+          <select class="form-control" id="part_detail" name="part_detail">
+            <option value="未設定">未設定</option>
+            <option value="上">上</option>
+            <option value="下">下</option>
           </select>
         </div>
         <div class="form-group">
@@ -40,6 +44,7 @@
             <option value="Beginner">初心者</option>
             <option value="Intermediate">中級者</option>
             <option value="Advanced">上級者</option>
+            <option value="未設定">未設定</option>
           </select>
         </div>
         <button type="submit" class="btn btn-primary">保存</button>

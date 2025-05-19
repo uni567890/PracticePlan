@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>メンバー一括登録</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>メンバー一括登録</h1>
+
+      {% if message %}
+      <div class="alert alert-success">{{ message }}</div>
+      {% endif %} {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
+
+      <form action="/add_members_bulk" method="POST">
+        <div class="form-group">
+          <label for="member_data">メンバーデータ (パート[TAB]名前):</label>
+          <textarea
+            class="form-control"
+            id="member_data"
+            name="member_data"
+            rows="10"
+            placeholder="B	井尻 草太&#x0a;T	Alexander Frühauf&#x0a;A	五十嵐 のの&#x0a;S	大山 沙希子"
+          ></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">登録</button>
+      </form>
+      <a href="/" class="btn btn-secondary">戻る</a>
+    </div>
+  </body>
+</html>
