@@ -35,6 +35,7 @@ packaging==25.0
 proto-plus==1.26.1
 protobuf==6.30.2
 psycopg2==2.9.10
+pyscopg2-binary==2.9.10
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pydantic==2.11.4
