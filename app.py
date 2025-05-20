@@ -10,8 +10,32 @@ import psycopg2
 
 app = Flask(__name__)
 
+# Cloud Run環境で設定する環境変数
+# DB_USER, DB_NAME, INSTANCE_CONNECTION_NAME は通常の環境変数
+# DB_PASS_FROM_SECRET は Secret Manager から取得したパスワードが格納される環境変数名（例）
+db_user = os.environ.get("DB_USER")
+db_pass = os.environ.get("DB_PASS_FROM_SECRET") # Secret Managerから取得したパスワード
+db_name = os.environ.get("DB_NAME")
+instance_connection_name = os.environ.get("INSTANCE_CONNECTION_NAME")
+
+# デフォルトのデータベースURI (ローカル開発用など)
+default_db_uri = 'sqlite:///dates.db'
+
+if instance_connection_name and db_user and db_pass and db_name:
+    # Cloud Run環境 (Cloud SQL MySQLへの接続)
+    db_socket_path = f"/cloudsql/{instance_connection_name}"
+    # MySQLの場合 (mysqlclient ドライバ)
+    database_url = f"mysql+mysqlclient://{db_user}:{db_pass}@localhost/{db_name}?unix_socket={db_socket_path}"
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    # ログ出力時はパスワードをマスクする
+    masked_url = database_url.replace(db_pass, "****") if db_pass else database_url
+    print(f"Connecting to Cloud SQL (MySQL): {masked_url}")
+else:
+    # ローカル環境など、フォールバック (環境変数 DATABASE_URL があればそれを使う)
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///dates.db')
+    print(f"Using fallback database: {app.config['SQLALCHEMY_DATABASE_URI']}")
+
 # データベースの設定
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", 'sqlite:///dates.db')  # SQLiteデータベースを使用
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
