@@ -15,6 +15,7 @@ google-api-python-client==2.169.0
 google-auth==2.40.1
 google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.2
+google-cloud-storage==2.10.0
 google-genai==1.14.0
 googleapis-common-protos==1.70.0
 greenlet==3.2.2

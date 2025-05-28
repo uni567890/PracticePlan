@@ -1,15 +1,24 @@
+import argparse
 import os
-from flask import Flask, render_template, request, redirect, jsonify
+import sys
+from flask import Flask, render_template, request, redirect, jsonify, session, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 import markdown
 from google import genai
 import json
-from datetime import date
+from datetime import date, datetime, timedelta # timedelta をインポート
 import sqlalchemy
 import psycopg2
+from functools import wraps # wraps をインポート
 
 app = Flask(__name__)
 
+# セッション管理のためのシークレットキー (環境変数から取得推奨)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_secret_key_change_this_in_prod")
+# アプリケーションパスワード (環境変数から取得推奨)
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "admin") # 開発用のデフォルトパスワード
+
+# --- 既存のデータベース接続設定 ---
 # Cloud Run環境で設定する環境変数
 # DB_USER, DB_NAME, INSTANCE_CONNECTION_NAME は通常の環境変数
 # DB_PASS_FROM_SECRET は Secret Manager から取得したパスワードが格納される環境変数名（例）
@@ -113,14 +122,7 @@ class Feedback(db.Model):
     feedback = db.Column(db.Text, nullable=False)
 
 class AISuggestion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.String(10), nullable=False)
-    suggestion = db.Column(db.Text, nullable=False)
-
-class Performance(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.String(10), nullable=False)  # 本番の日程
-    songs = db.relationship(
+    id = db.Column(db.Integer
         'PerformanceSong',
         backref='performance',
         lazy=True,
@@ -849,5 +851,18 @@ def add_members_bulk():
             return render_template("add_members_bulk.html", error="メンバーデータが入力されていません。")
     return render_template("add_members_bulk.html")
 
+def check_password():
+    parser = argparse.ArgumentParser(description="練習計画作成アプリ")
+    parser.add_argument("password", help="アプリケーションパスワード")
+    args = parser.parse_args()
+
+    app_password = os.environ.get("APP_PASSWORD", "admin")  # 環境変数から取得
+
+    if args.password != app_password:
+        print("パスワードが間違っています。")
+        sys.exit(1)  # エラーコードで終了
+
 if __name__ == "__main__":
-    app.run(debug=os.environ.get("DEBUG") == "True")
+    check_password()  # パスワードチェック
+
+    app.run(debug=os.environ.get("DEBUG") == "True", host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
