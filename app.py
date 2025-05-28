@@ -122,8 +122,16 @@ class Feedback(db.Model):
     feedback = db.Column(db.Text, nullable=False)
 
 class AISuggestion(db.Model):
-    id = db.Column(db.Integer
-        'PerformanceSong',
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(10), nullable=False)
+    suggestion = db.Column(db.Text, nullable=False)
+
+class Performance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(10), nullable=False)
+    songs = db.relationship(
+        'Song',
+        secondary='PerformanceSong',
         backref='performance',
         lazy=True,
         cascade="all, delete-orphan"  # 関連付けられた曲を自動的に削除
