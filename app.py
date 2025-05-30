@@ -1,7 +1,6 @@
 import argparse
 import os
 from flask import Flask, render_template, request, redirect, jsonify, session, url_for # Added session, url_for
->>>>>>> branch-b
 from flask_sqlalchemy import SQLAlchemy
 import markdown
 from google import genai
@@ -10,7 +9,6 @@ from datetime import date, datetime, timedelta # timedelta をインポート
 import sqlalchemy
 import psycopg2
 from functools import wraps # Added wraps
->>>>>>> branch-b
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "your_default_secret_key_for_development") # Add a secret key for sessions
