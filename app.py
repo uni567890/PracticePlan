@@ -130,23 +130,21 @@ class AISuggestion(db.Model):
 class Performance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(10), nullable=False)
-    songs = db.relationship(
-        'Song',
-        secondary='PerformanceSong',
-        backref='performance',
-        lazy=True,
-        cascade="all, delete-orphan"  # 関連付けられた曲を自動的に削除
-    )
-    description = db.Column(db.String(200), nullable=True)  # 本番の説明（任意）
+    songs = db.relationship('Song', secondary='performance_song', backref=db.backref('performances', lazy=True)) # Add this relationship
 
-class PerformanceSong(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    performance_id = db.Column(db.Integer, db.ForeignKey('performance.id'), nullable=False)
-    song_name = db.Column(db.String(100), nullable=False)  # 曲名
+
+# class PerformanceSong(db.Model): # Remove or comment out this class
+    
 
 # 中間テーブル
 practice_plan_song = db.Table('practice_plan_song',
     db.Column('practice_plan_id', db.Integer, db.ForeignKey('practice_plan.id'), primary_key=True),
+    db.Column('song_id', db.Integer, db.ForeignKey('song.id'), primary_key=True)
+)
+
+# Add the new association table for Performance and Song
+performance_song = db.Table('performance_song',
+    db.Column('performance_id', db.Integer, db.ForeignKey('performance.id'), primary_key=True),
     db.Column('song_id', db.Integer, db.ForeignKey('song.id'), primary_key=True)
 )
 
