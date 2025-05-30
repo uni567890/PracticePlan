@@ -1,7 +1,7 @@
 import argparse
 import os
-import sys
-from flask import Flask, render_template, request, redirect, jsonify, session, url_for, flash
+from flask import Flask, render_template, request, redirect, jsonify, session, url_for # Added session, url_for
+>>>>>>> branch-b
 from flask_sqlalchemy import SQLAlchemy
 import markdown
 from google import genai
@@ -9,9 +9,12 @@ import json
 from datetime import date, datetime, timedelta # timedelta をインポート
 import sqlalchemy
 import psycopg2
-from functools import wraps # wraps をインポート
+from functools import wraps # Added wraps
+>>>>>>> branch-b
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "your_default_secret_key_for_development") # Add a secret key for sessions
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "admin") # Set your application password, default is "admin"
 
 # セッション管理のためのシークレットキー (環境変数から取得推奨)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_secret_key_change_this_in_prod")
@@ -156,11 +159,39 @@ practice_plan_song = db.Table('practice_plan_song',
 #     db.Column('attendance', db.String(50), nullable=True)  # 出席状況 (例: Present, Absent, Late)
 # )
 
+# Login required decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'logged_in' not in session:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form['password'] == APP_PASSWORD:
+            session['logged_in'] = True
+            next_url = request.args.get('next')
+            return redirect(next_url or url_for('index'))
+        else:
+            error = 'Invalid password. Please try again.'
+    return render_template('login.html', error=error)
+
+@app.route('/logout')
+@login_required
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
 # 初回実行時にデータベースを作成
 with app.app_context():
     db.create_all()
 
 @app.route("/")
+@login_required # Protect this route
 def index():
     dates = DateEntry.query.all()
     performances = Performance.query.all()
@@ -184,6 +215,7 @@ def index():
     return render_template("index.html", calendar_events_data=calendar_events_data, songs=songs, dates=dates)
 
 @app.route("/submit", methods=["POST"])
+@login_required # Protect this route
 def submit_date():
     date = request.form.get("date")  # フォームから送信された日付を取得
     if date:
@@ -194,11 +226,13 @@ def submit_date():
     return render_template("result.html", date=date)  # データをresult.htmlに渡す
 
 @app.route("/dates")
+@login_required # Protect this route
 def show_dates():
     dates = DateEntry.query.all()  # データベースからすべてのデータを取得
     return render_template("dates.html", dates=dates)
 
 @app.route("/delete/<int:id>", methods=["POST"])
+@login_required # Protect this route
 def delete_date(id):
     # 指定されたIDのデータを取得
     entry = DateEntry.query.get_or_404(id)
@@ -208,6 +242,7 @@ def delete_date(id):
     return "Entry deleted successfully", 200
 
 @app.route("/delete_date/<int:date_id>", methods=["POST"])
+@login_required # Protect this route
 def delete_practice_date(date_id):  # 関数名を変更
     date_entry = DateEntry.query.get_or_404(date_id)  # 指定されたIDの練習日を取得
 
@@ -217,6 +252,7 @@ def delete_practice_date(date_id):  # 関数名を変更
     return redirect("/dates")  # 削除後、練習日一覧ページにリダイレクト
 
 @app.route("/submit_plan", methods=["POST"])
+@login_required # Protect this route
 def submit_plan():
     # フォームデータを取得
     date = request.form.get("date")
@@ -351,6 +387,7 @@ def submit_plan():
     return render_template("ai_suggestion.html", date=date, suggestion=ai_suggestion)
 
 @app.route("/revise_plan", methods=["POST"])
+@login_required # Protect this route
 def revise_plan():
     date = request.form.get("date")
     current_suggestion = request.form.get("current_suggestion")
@@ -446,6 +483,7 @@ def revise_plan():
     return render_template("ai_suggestion.html", date=date, suggestion=ai_suggestion)
 
 @app.route("/add_song", methods=["GET", "POST"])
+@login_required # Protect this route
 def add_song():
     if request.method == "POST":
         song_name = request.form.get("song_name")
@@ -487,6 +525,7 @@ def add_song():
     return render_template("add_song.html", songs=Song.query.all())
 
 @app.route("/delete_song/<int:song_id>", methods=["POST"])
+@login_required # Protect this route
 def delete_song(song_id):
     song = Song.query.get(song_id)
     if song:
@@ -496,6 +535,7 @@ def delete_song(song_id):
     return "曲が見つかりませんでした。", 404
 
 @app.route("/edit_song/<int:song_id>", methods=["GET", "POST"])
+@login_required # Protect this route
 def edit_song(song_id):
     song = Song.query.get(song_id)
     if not song:
@@ -543,6 +583,7 @@ def edit_song(song_id):
     return render_template("edit_song.html", song=song)
 
 @app.route("/submit_feedback", methods=["POST"])
+@login_required # Protect this route
 def submit_feedback():
     # フィードバックデータを取得
     date = request.form.get("date")
@@ -557,6 +598,7 @@ def submit_feedback():
     return render_template("feedback_received.html", date=date)
 
 @app.route("/add_date", methods=["GET", "POST"])
+@login_required # Protect this route
 def add_date():
     members_all = Member.query.all()
 
@@ -615,6 +657,7 @@ def add_date():
     return render_template("add_date.html", dates=DateEntry.query.all(), members=members_all)
 
 @app.route("/edit_date/<int:date_id>", methods=["GET", "POST"])
+@login_required # Protect this route
 def edit_date(date_id):
     date_entry = DateEntry.query.get_or_404(date_id)
     members = Member.query.all()
@@ -643,6 +686,7 @@ def edit_date(date_id):
     return render_template("edit_date.html", date_entry=date_entry, members=members)
 
 @app.route("/add_performance", methods=["GET", "POST"])
+@login_required # Protect this route
 def add_performance():
     if request.method == "POST":
         date = request.form.get("date")
@@ -666,6 +710,7 @@ def add_performance():
     return render_template("add_performance.html", performances=Performance.query.all(), songs=Song.query.all())
 
 @app.route("/edit_performance/<int:performance_id>", methods=["GET", "POST"])
+@login_required # Protect this route
 def edit_performance(performance_id):
     performance = Performance.query.get_or_404(performance_id)
     all_songs = Song.query.all()  # すべての曲を取得
@@ -690,6 +735,7 @@ def edit_performance(performance_id):
     return render_template("edit_performance.html", performance=performance, all_songs=all_songs)
 
 @app.route("/delete_performance/<int:performance_id>", methods=["POST"])
+@login_required # Protect this route
 def delete_performance(performance_id):
     performance = Performance.query.get_or_404(performance_id)  # 指定されたIDの本番日程を取得
 
@@ -699,11 +745,13 @@ def delete_performance(performance_id):
     return redirect("/add_performance")  # 削除後、本番日程一覧ページにリダイレクト
 
 @app.route("/view_ai_suggestions")
+@login_required # Protect this route
 def view_ai_suggestions():
     suggestions = AISuggestion.query.all()  # データベースからすべてのAI提案を取得
     return render_template("view_ai_suggestions.html", suggestions=suggestions)
 
 @app.route("/view_ai_suggestion/<date>")
+@login_required # Protect this route
 def view_ai_suggestion(date):
     suggestion = AISuggestion.query.filter_by(date=date).first()
     if not suggestion:
@@ -711,10 +759,12 @@ def view_ai_suggestion(date):
     return render_template("ai_suggestion.html", date=suggestion.date, suggestion=suggestion.suggestion)
 
 @app.route("/add_template")
+@login_required # Protect this route
 def add_template():
     return render_template("add_template.html")
 
 @app.route("/save_template", methods=["POST"])
+@login_required # Protect this route
 def save_template():
     name = request.form.get("name")
     description = request.form.get("description")
@@ -730,11 +780,13 @@ def save_template():
     return "テンプレートの保存に失敗しました。", 400
 
 @app.route("/edit_template/<int:template_id>")
+@login_required # Protect this route
 def edit_template(template_id):
     template = PracticePlanTemplate.query.get_or_404(template_id)
     return render_template("edit_template.html", template=template)
 
 @app.route("/update_template/<int:template_id>", methods=["POST"])
+@login_required # Protect this route
 def update_template(template_id):
     template = PracticePlanTemplate.query.get_or_404(template_id)
 
@@ -748,10 +800,12 @@ def update_template(template_id):
     return redirect("/")  # リダイレクト先は適宜変更
 
 @app.route("/add_member")
+@login_required # Protect this route
 def add_member():
     return render_template("add_member.html")
 
 @app.route("/save_member", methods=["POST"])
+@login_required # Protect this route
 def save_member():
     name = request.form.get("name")
     part = request.form.get("part")
@@ -765,11 +819,13 @@ def save_member():
     return "メンバーの保存に失敗しました。", 400
 
 @app.route("/edit_member/<int:member_id>")
+@login_required # Protect this route
 def edit_member(member_id):
     member = Member.query.get_or_404(member_id)
     return render_template("edit_member.html", member=member)
 
 @app.route("/update_member/<int:member_id>", methods=["POST"])
+@login_required # Protect this route
 def update_member(member_id):
     member = Member.query.get_or_404(member_id)
     member.name = request.form.get("name")
@@ -780,6 +836,7 @@ def update_member(member_id):
     return redirect("/members")  # メンバー一覧ページにリダイレクト
 
 @app.route("/delete_member/<int:member_id>", methods=["POST"])
+@login_required # Protect this route
 def delete_member(member_id):
     member = Member.query.get_or_404(member_id)
     db.session.delete(member)
@@ -787,12 +844,14 @@ def delete_member(member_id):
     return redirect("/members")  # メンバー一覧ページにリダイレクト
 
 @app.route("/members")
+@login_required # Protect this route
 def members():
     members = Member.query.all()
     print(members)  # ログに出力
     return render_template("members.html", members=members)
 
 @app.route("/get_date_info")
+@login_required # Protect this route
 def get_date_info():
     date_str = request.args.get("date")
     date_entry = DateEntry.query.filter_by(date=date_str).first()
@@ -825,6 +884,7 @@ def generate_ai_suggestion(prompt):
     return html_output
 
 @app.route("/add_members_bulk", methods=["GET", "POST"])
+@login_required # Protect this route
 def add_members_bulk():
     if request.method == "POST":
         member_data = request.form.get("member_data")
